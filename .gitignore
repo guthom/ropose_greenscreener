@@ -49,3 +49,4 @@ fabric.properties
 
 /ropose_greenscreener.egg-info
 /dist
+/build
