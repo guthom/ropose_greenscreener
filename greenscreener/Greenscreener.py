@@ -9,7 +9,7 @@ import numpy as np
 class Greenscreener:
 
     def __init__(self, backgroundDir: str = config.backgroundDir,
-                 backgroundScale: Tuple[int] = config.backgroundScale):
+                 backgroundScale: Tuple[int, int] = config.backgroundScale):
         self.backgrounds: List[np.array] = []
         self.originalFileNames: List[str] = []
         self.backgourndDir: str = backgroundDir
