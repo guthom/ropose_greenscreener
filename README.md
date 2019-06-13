@@ -16,6 +16,26 @@ cd ropose_greenscreener
 pip install -r requirements.txt
 ```
 
+## Usage
+```python
+from greenscreener.Greenscreener import Greenscreener
+import cv2
+
+screener = Greenscreener(backgroundDir="path/to/background/directory",
+                         backgroundScale=(1280, 720))
+
+image = cv2.imread("path/to/image")
+image = cv2.resize(src=image, dsize=(1280, 720))
+
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+image = screener.ReplaceBackground(image)
+image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+cv2.imshow("Greenscreener Demo", image)
+
+cv2.waitKey(0)
+```
+
 ## Open Source Acknowledgments
 This work uses parts from:
 * **numpy** https://www.numpy.org/
@@ -24,6 +44,7 @@ This work uses parts from:
 
 **Thanks to ALL the people who contributed to the projects!**
 
+## Authors
 
 * **Thomas Gulde** - Main Author
 
