@@ -26,7 +26,7 @@ class Greenscreener:
         random.shuffle(self.fileList)
         random.shuffle(self.fileList)
 
-        self.preloader = DataPreloader(self.fileList, loadMethod=Greenscreener.LoadImage, maxPreloadCount=1000,
+        self.preloader = DataPreloader(self.fileList, loadMethod=Greenscreener.LoadImage, maxPreloadCount=300,
                                        infinite=True)
 
     @staticmethod

@@ -12,8 +12,6 @@ from ropose_dataset_tools.DataClasses.Dataset.Dataset import Dataset
 import numpy as np
 import random
 
-
-
 class Greenscreener:
 
     def __init__(self, datasetDir: str, imageScale: Tuple[int, int] = None):
@@ -22,14 +20,14 @@ class Greenscreener:
         self.datasetDir: str = datasetDir
         self.imageScale: str = imageScale
 
+        print("Loading data for RoposeGreenscreener!")
         self.datasets = datasetLoader.LoadDataSet(datasetDir)
-
 
         #shuffle list for better randomness
         random.shuffle(self.datasets)
         random.shuffle(self.datasets)
 
-        self.preloader = DataPreloader(self.datasets, loadMethod=Greenscreener.LoadDataset, maxPreloadCount=1000,
+        self.preloader = DataPreloader(self.datasets, loadMethod=Greenscreener.LoadDataset, maxPreloadCount=300,
                                        infinite=True)
 
     @staticmethod
