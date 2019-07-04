@@ -4,49 +4,52 @@ import os
 from typing import List, Tuple
 
 import greenscreener.config as config
+from guthoms_helpers.common_stuff.DataPreloader import DataPreloader
+from guthoms_helpers.filesystem.DirectoryHelper import DirectoryHelper
 import numpy as np
+import random
+
+
 
 class Greenscreener:
 
-    def __init__(self, backgroundDir: str = config.backgroundDir,
-                 backgroundScale: Tuple[int, int] = config.backgroundScale):
+    def __init__(self, imageDir: str = config.imageDir, imageScale: Tuple[int, int] = None):
         self.backgrounds: List[np.array] = []
         self.originalFileNames: List[str] = []
-        self.backgourndDir: str = backgroundDir
-        self.backgroundScale = backgroundScale
+        self.imageDir: str = imageDir
+        self.imageScale: str = imageScale
 
-        self.Initialize()
 
-    def LoadBackgrounds(self):
-        fileList = os.listdir(config.backgroundDir)
-        for file in fileList:
-            image = cv2.imread(config.backgroundDir + file)
-            image = cv2.resize(src=image, dsize=self.backgroundScale)
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            self.backgrounds.append(image)
-        return
+        self.fileList = DirectoryHelper.ListDirectoryFiles(dirPath=self.imageDir, fileEndings=[".jpg", ".png"])
 
-    def LoadFilenames(self):
-        if os.path.isdir(self.backgourndDir):
-            self.originalFileNames = os.listdir(self.backgourndDir)
+        #shuffle list for better randomness
+        random.shuffle(self.fileList)
+        random.shuffle(self.fileList)
 
-    def ResizeBackgrounds(self):
-        size = config.backgroundScale
+        self.preloader = DataPreloader(self.fileList, loadMethod=Greenscreener.LoadImage, maxPreloadCount=1000,
+                                       infinite=True)
 
-        for i in range(0, self.backgrounds.__len__()):
-            self.backgrounds[i] = cv2.resize(src=self.backgrounds[i], dsize=size)
+    @staticmethod
+    def LoadImage(path):
+        image = cv2.imread(path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        return image
 
-        return
+    @staticmethod
+    def FitImageSizes(targetSpec: np.array, image: np.array):
+        if image.shape != targetSpec.shape:
+            image = cv2.resize(image, dsize=(targetSpec.shape[0], targetSpec.shape[1]))
+        return image
 
-    def GetRandomBackground(self):
-        randInt = np.random.randint(self.backgrounds.__len__(), size=1)
-        return self.backgrounds[int(randInt)]
 
-    def ReplaceBackground(self, image: np.array):
+    def AddBackground(self, image: np.array, background: np.array=None):
+
+        if background is None:
+            background = self.GetRandomImage()
+
+        background = self.FitImageSizes(targetSpec=image, image=background)
 
         hsvImage = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-
-        background = self.GetRandomBackground()
 
         bgMask = cv2.inRange(hsvImage, config.lowerTH, config.upperTH)
         fgMask = cv2.bitwise_not(bgMask)
@@ -55,10 +58,26 @@ class Greenscreener:
         background = cv2.bitwise_or(background, background, mask=bgMask)
 
         res = cv2.bitwise_or(background, foreground)
-
         return res
 
-    def Initialize(self):
-        self.LoadBackgrounds()
-        self.LoadFilenames()
-        self.ResizeBackgrounds()
+    def AddForeground(self, image: np.array, foreground: np.array=None):
+
+        if foreground is None:
+            foreground = self.GetRandomImage()
+
+        foreground = self.FitImageSizes(targetSpec=image, image=foreground)
+
+        hsvImage = cv2.cvtColor(foreground, cv2.COLOR_RGB2HSV)
+
+        bgMask = cv2.inRange(hsvImage, config.lowerTH, config.upperTH)
+        fgMask = cv2.bitwise_not(bgMask)
+
+        foreground = cv2.bitwise_or(foreground, foreground, mask=fgMask)
+        background = cv2.bitwise_or(image, image, mask=bgMask)
+
+        res = cv2.bitwise_or(background, foreground)
+        return res
+
+    def GetRandomImage(self):
+        return self.preloader.Next()
+
