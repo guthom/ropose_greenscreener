@@ -15,8 +15,13 @@ class GreenscreenerTests(TestCase):
         dirName = os.path.join(dirName, "test_data")
 
         self.imgGreen = cv2.imread(os.path.join(dirName, "ropose_greenscreened.png"))
+        self.imgGreen = cv2.cvtColor(self.imgGreen, cv2.COLOR_BGR2RGB)
+
         self.imgNorm = cv2.imread(os.path.join(dirName, "ropose.png"))
+        self.imgNorm = cv2.cvtColor(self.imgNorm, cv2.COLOR_BGR2RGB)
+
         self.result = cv2.imread(os.path.join(dirName, "result.png"))
+        self.result = cv2.cvtColor(self.result, cv2.COLOR_BGR2RGB)
 
 
     def test_foregroundExchange(self):
