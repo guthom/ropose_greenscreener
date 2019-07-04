@@ -15,7 +15,7 @@ class GreenscreenerTests(TestCase):
 
         self.imgNorm = cv2.imread(os.path.join(dirName, "ropose.png"))
         self.imgNorm = cv2.cvtColor(self.imgNorm, cv2.COLOR_BGR2RGB)
-        self.result = cv2.imread(os.path.join(dirName, "result_ropose.png"))
+        self.result = cv2.imread(os.path.join(dirName, "result_dataset.png"))
         self.result = cv2.cvtColor(self.result, cv2.COLOR_BGR2RGB)
 
         self.greensceener = Greenscreener(datasetDir)

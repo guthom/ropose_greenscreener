@@ -7,7 +7,7 @@ import greenscreener.config as config
 
 from guthoms_helpers.common_stuff.DataPreloader import DataPreloader
 from guthoms_helpers.filesystem.DirectoryHelper import DirectoryHelper
-import ropose_dataset_tools.DataSetLoader as loader
+import ropose_dataset_tools.DataSetLoader as datasetLoader
 from ropose_dataset_tools.DataClasses.Dataset.Dataset import Dataset
 import numpy as np
 import random
@@ -22,7 +22,7 @@ class Greenscreener:
         self.datasetDir: str = datasetDir
         self.imageScale: str = imageScale
 
-        self.datasets = loader.LoadDataSet(datasetDir)
+        self.datasets = datasetLoader.LoadDataSet(datasetDir)
 
 
         #shuffle list for better randomness
@@ -43,7 +43,7 @@ class Greenscreener:
     def FitImageSizes(targetSpec: np.array, image: np.array):
         factor = (1.0, 1.0)
         if image.shape != targetSpec.shape:
-            image = cv2.resize(image, dsize=(targetSpec.shape[0], targetSpec.shape[1]))
+            image = cv2.resize(image, dsize=(targetSpec.shape[1], targetSpec.shape[0]))
             factor = (image.shape[0]/targetSpec.shape[0], image.shape[1]/targetSpec.shape[1])
         return image, factor
 

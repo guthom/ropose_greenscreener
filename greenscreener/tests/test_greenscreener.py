@@ -17,11 +17,20 @@ class GreenscreenerTests(TestCase):
         self.imgGreen = cv2.imread(os.path.join(dirName, "ropose_greenscreened.png"))
         self.imgGreen = cv2.cvtColor(self.imgGreen, cv2.COLOR_BGR2RGB)
 
+        self.imgGreenResized = cv2.imread(os.path.join(dirName, "ropose_greenscreened_resized.png"))
+        self.imgGreenResized = cv2.cvtColor(self.imgGreenResized, cv2.COLOR_BGR2RGB)
+
         self.imgNorm = cv2.imread(os.path.join(dirName, "ropose.png"))
         self.imgNorm = cv2.cvtColor(self.imgNorm, cv2.COLOR_BGR2RGB)
 
-        self.result = cv2.imread(os.path.join(dirName, "result.png"))
+        self.imgNormResized = cv2.imread(os.path.join(dirName, "ropose_resized.png"))
+        self.imgNormResized = cv2.cvtColor(self.imgNormResized, cv2.COLOR_BGR2RGB)
+
+        self.result = cv2.imread(os.path.join(dirName, "result_ropose.png"))
         self.result = cv2.cvtColor(self.result, cv2.COLOR_BGR2RGB)
+
+        self.resultResized = cv2.imread(os.path.join(dirName, "result_ropose_resized.png"))
+        self.resultResized = cv2.cvtColor(self.resultResized, cv2.COLOR_BGR2RGB)
 
 
     def test_foregroundExchange(self):
@@ -32,3 +41,6 @@ class GreenscreenerTests(TestCase):
         res = self.greensceener.AddBackground(image=self.imgGreen, background=self.imgNorm)
         self.assertTrue(np.array_equal(res, self.result))
 
+    def test_foregroundExchangeDiffSize(self):
+        res = self.greensceener.AddForeground(image=self.imgNormResized, foreground=self.imgGreen)
+        self.assertTrue(np.array_equal(res, self.resultResized))

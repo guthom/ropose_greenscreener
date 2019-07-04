@@ -37,10 +37,10 @@ class Greenscreener:
 
     @staticmethod
     def FitImageSizes(targetSpec: np.array, image: np.array):
-        if image.shape != targetSpec.shape:
-            image = cv2.resize(image, dsize=(targetSpec.shape[0], targetSpec.shape[1]))
-        return image
 
+        if image.shape != targetSpec.shape:
+            image = cv2.resize(image, dsize=(targetSpec.shape[1], targetSpec.shape[0]))
+        return image
 
     def AddBackground(self, image: np.array, background: np.array=None):
 
