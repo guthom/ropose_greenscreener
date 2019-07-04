@@ -30,7 +30,7 @@ class Greenscreener:
                                        infinite=True)
 
     @staticmethod
-    def LoadImage(path):
+    def LoadImage(path: str):
         image = cv2.imread(path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
