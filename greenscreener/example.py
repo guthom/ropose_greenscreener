@@ -1,8 +1,8 @@
-from greenscreener.Greenscreener import Greenscreener
+from greenscreener.ImageGreenscreener import ImageGreenscreener
 import cv2
 
-screener = Greenscreener(backgroundDir="path/to/background/directory",
-                         backgroundScale=(1280, 720))
+screener = ImageGreenscreener(backgroundDir="path/to/background/directory",
+                              backgroundScale=(1280, 720))
 
 image = cv2.imread("path/to/image")
 image = cv2.resize(src=image, dsize=(1280, 720))

@@ -1,17 +1,14 @@
 import cv2
-import os
-
 from typing import List, Tuple
 
+import numpy as np
+
 import greenscreener.config as config
+
 from guthoms_helpers.common_stuff.DataPreloader import DataPreloader
 from guthoms_helpers.filesystem.DirectoryHelper import DirectoryHelper
-import numpy as np
-import random
 
-
-
-class Greenscreener:
+class ImageGreenscreener(object):
 
     def __init__(self, imageDir: str = config.imageDir, imageScale: Tuple[int, int] = None):
         self.backgrounds: List[np.array] = []
@@ -19,15 +16,11 @@ class Greenscreener:
         self.imageDir: str = imageDir
         self.imageScale: str = imageScale
 
-
         self.fileList = DirectoryHelper.ListDirectoryFiles(dirPath=self.imageDir, fileEndings=[".jpg", ".png"])
 
-        #shuffle list for better randomness
-        random.shuffle(self.fileList)
-        random.shuffle(self.fileList)
+        self.preloader = DataPreloader(self.fileList, loadMethod=self.LoadImage, maxPreloadCount=300,
+                                       infinite=True, shuffleData=True)
 
-        self.preloader = DataPreloader(self.fileList, loadMethod=Greenscreener.LoadImage, maxPreloadCount=300,
-                                       infinite=True)
 
     @staticmethod
     def LoadImage(path: str):
@@ -45,7 +38,7 @@ class Greenscreener:
     def AddBackground(self, image: np.array, background: np.array=None):
 
         if background is None:
-            background = self.GetRandomImage()
+            background = self.preloader.Next()
 
         background = self.FitImageSizes(targetSpec=image, image=background)
 
@@ -63,7 +56,7 @@ class Greenscreener:
     def AddForeground(self, image: np.array, foreground: np.array=None):
 
         if foreground is None:
-            foreground = self.GetRandomImage()
+            foreground = self.preloader.Next()
 
         foreground = self.FitImageSizes(targetSpec=image, image=foreground)
 
@@ -78,6 +71,5 @@ class Greenscreener:
         res = cv2.bitwise_or(background, foreground)
         return res
 
-    def GetRandomImage(self):
-        return self.preloader.Next()
-
+    def Shutdown(self):
+        self.preloader.shutdown()

@@ -1,18 +1,15 @@
 import cv2
-import os
-
 from typing import List, Tuple
 
 import greenscreener.config as config
+import numpy as np
 
 from guthoms_helpers.common_stuff.DataPreloader import DataPreloader
-from guthoms_helpers.filesystem.DirectoryHelper import DirectoryHelper
-import ropose_dataset_tools.DataSetLoader as datasetLoader
 from ropose_dataset_tools.DataClasses.Dataset.Dataset import Dataset
-import numpy as np
-import random
+import ropose_dataset_tools.DataSetLoader as datasetLoader
 
-class Greenscreener:
+
+class RoposeGreenscreener(object):
 
     def __init__(self, datasetDir: str, imageScale: Tuple[int, int] = None):
         self.backgrounds: List[np.array] = []
@@ -23,12 +20,8 @@ class Greenscreener:
         print("Loading data for RoposeGreenscreener!")
         self.datasets = datasetLoader.LoadDataSet(datasetDir)
 
-        #shuffle list for better randomness
-        random.shuffle(self.datasets)
-        random.shuffle(self.datasets)
-
-        self.preloader = DataPreloader(self.datasets, loadMethod=Greenscreener.LoadDataset, maxPreloadCount=300,
-                                       infinite=True)
+        self.preloader = DataPreloader(self.datasets, loadMethod=RoposeGreenscreener.LoadDataset, maxPreloadCount=300,
+                                       infinite=True, shuffleData=True)
 
     @staticmethod
     def LoadDataset(dataset: Dataset):
@@ -65,4 +58,5 @@ class Greenscreener:
         res = cv2.bitwise_or(background, foreground)
         return res, dataset.yoloData
 
-
+    def Shutdown(self):
+        self.preloader.shutdown()
