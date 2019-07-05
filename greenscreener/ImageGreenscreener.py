@@ -10,7 +10,7 @@ from guthoms_helpers.filesystem.DirectoryHelper import DirectoryHelper
 
 class ImageGreenscreener(object):
 
-    def __init__(self, imageDir: str = config.imageDir, imageScale: Tuple[int, int] = None):
+    def __init__(self, imageDir: str = config.imageDir, imageScale: Tuple[int, int] = None, maxPreloadCount = 600):
         self.backgrounds: List[np.array] = []
         self.originalFileNames: List[str] = []
         self.imageDir: str = imageDir
@@ -18,7 +18,7 @@ class ImageGreenscreener(object):
 
         self.fileList = DirectoryHelper.ListDirectoryFiles(dirPath=self.imageDir, fileEndings=[".jpg", ".png"])
 
-        self.preloader = DataPreloader(self.fileList, loadMethod=self.LoadImage, maxPreloadCount=300,
+        self.preloader = DataPreloader(self.fileList, loadMethod=self.LoadImage, maxPreloadCount=maxPreloadCount,
                                        infinite=True, shuffleData=True)
 
 
