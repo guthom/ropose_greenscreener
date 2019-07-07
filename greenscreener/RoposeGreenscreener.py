@@ -11,7 +11,7 @@ import ropose_dataset_tools.DataSetLoader as datasetLoader
 
 class RoposeGreenscreener(object):
 
-    def __init__(self, datasetDir: str, imageScale: Tuple[int, int] = None, maxPreloadCount = 600):
+    def __init__(self, datasetDir: str, imageScale: Tuple[int, int] = None, maxPreloadCount = 1500):
         self.backgrounds: List[np.array] = []
         self.originalFileNames: List[str] = []
         self.datasetDir: str = datasetDir
