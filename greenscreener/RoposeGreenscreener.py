@@ -7,6 +7,7 @@ import numpy as np
 from guthoms_helpers.common_stuff.DataPreloader import DataPreloader
 from ropose_dataset_tools.DataClasses.Dataset.Dataset import Dataset
 import ropose_dataset_tools.DataSetLoader as datasetLoader
+import random
 
 
 class RoposeGreenscreener(object):
@@ -20,9 +21,11 @@ class RoposeGreenscreener(object):
         print("Loading data for RoposeGreenscreener!")
         self.datasets = datasetLoader.LoadDataSet(datasetDir)
 
-        self.preloader = DataPreloader(self.datasets, loadMethod=RoposeGreenscreener.LoadDataset,
-                                       maxPreloadCount=maxPreloadCount, infinite=True, shuffleData=True,
-                                       waitForBuffer=False)
+        #self.preloader = DataPreloader(self.datasets, loadMethod=RoposeGreenscreener.LoadDataset,
+        #                               maxPreloadCount=maxPreloadCount, infinite=True, shuffleData=True,
+        #                               waitForBuffer=False)
+
+
 
     @staticmethod
     def LoadDataset(dataset: Dataset):
@@ -41,7 +44,8 @@ class RoposeGreenscreener(object):
 
     def AddForeground(self, image: np.array):
 
-        foregroundImg, dataset = self.preloader.Next()
+        #foregroundImg, dataset = self.preloader.Next()
+        foregroundImg, dataset = self.GetRandomForeGround()
 
         foreground, factor = self.FitImageSizes(targetSpec=image, image=foregroundImg)
 
@@ -59,5 +63,10 @@ class RoposeGreenscreener(object):
         res = cv2.bitwise_or(background, foreground)
         return res, dataset.yoloData
 
+    def GetRandomForeGround(self):
+        index = random.randint(0, self.datasets.__len__()-1)
+        return self.LoadDataset(self.datasets[index])
+
     def Shutdown(self):
-        self.preloader.shutdown()
+        pass
+        #self.preloader.shutdown()
