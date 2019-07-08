@@ -4,6 +4,7 @@ from unittest import TestCase
 from greenscreener.ImageGreenscreener import ImageGreenscreener
 import numpy as np
 import cv2
+import copy
 
 class GreenscreenerTests(TestCase):
 
@@ -13,6 +14,7 @@ class GreenscreenerTests(TestCase):
         dirName = os.path.dirname(os.path.abspath(__file__))
         dirName = os.path.join(dirName, "test_data")
 
+        self.greensceenerPreloader = ImageGreenscreener(os.path.join(dirName, "backgrounds_normal"), usePreloader=True)
         self.greensceener = ImageGreenscreener(os.path.join(dirName, "backgrounds_normal"))
 
         self.imgGreen = cv2.imread(os.path.join(dirName, "backgrounds_normal/ropose_greenscreened.png"))
@@ -35,16 +37,23 @@ class GreenscreenerTests(TestCase):
 
 
     def test_foregroundExchange(self):
-        res = self.greensceener.AddForeground(image=self.imgNorm)
+        res = self.greensceenerPreloader.AddForeground(image=copy.copy(self.imgNorm))
+        self.assertTrue(np.array_equal(res, self.result))
+        res = self.greensceener.AddForeground(image=copy.copy(self.imgNorm))
         self.assertTrue(np.array_equal(res, self.result))
 
     def test_backgroundExchange(self):
-        res = self.greensceener.AddBackground(image=self.imgGreen, background=self.imgNorm)
+        res = self.greensceenerPreloader.AddBackground(image=copy.copy(self.imgGreen), background=copy.copy(self.imgNorm))
+        self.assertTrue(np.array_equal(res, self.result))
+        res = self.greensceener.AddBackground(image=copy.copy(self.imgGreen), background=copy.copy(self.imgNorm))
         self.assertTrue(np.array_equal(res, self.result))
 
     def test_foregroundExchangeDiffSize(self):
-        res = self.greensceener.AddForeground(image=self.imgNormResized)
+        res = self.greensceenerPreloader.AddForeground(image=copy.copy(self.imgNormResized))
+        self.assertTrue(np.array_equal(res, self.resultResized))
+        res = self.greensceener.AddForeground(image=copy.copy(self.imgNormResized))
         self.assertTrue(np.array_equal(res, self.resultResized))
 
     def tearDown(self):
         self.greensceener.Shutdown()
+        self.greensceenerPreloader.Shutdown()

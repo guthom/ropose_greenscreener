@@ -4,12 +4,15 @@ from typing import List, Tuple
 import numpy as np
 from threading import Lock
 import greenscreener.config as config
+import random
 
 from guthoms_helpers.common_stuff.DataPreloader import DataPreloader
 from guthoms_helpers.filesystem.DirectoryHelper import DirectoryHelper
 
 class ImageGreenscreener(object):
-    def __init__(self, imageDir: str = config.imageDir, imageScale: Tuple[int, int] = None, maxPreloadCount = 3000):
+    def __init__(self, imageDir: str = config.imageDir, imageScale: Tuple[int, int] = None, maxPreloadCount = 3000,
+                 usePreloader: bool = False):
+
         self.backgrounds: List[np.array] = []
         self.originalFileNames: List[str] = []
         self.imageDir: str = imageDir
@@ -17,8 +20,11 @@ class ImageGreenscreener(object):
 
         self.fileList = DirectoryHelper.ListDirectoryFiles(dirPath=self.imageDir, fileEndings=[".jpg", ".png"])
 
+        self.usePreloader = usePreloader
 
-        self.preloader = DataPreloader(self.fileList, loadMethod=self.LoadImage, maxPreloadCount=maxPreloadCount,
+        self.preloader = None
+        if self.usePreloader:
+            self.preloader = DataPreloader(self.fileList, loadMethod=self.LoadImage, maxPreloadCount=maxPreloadCount,
                                        infinite=True, shuffleData=True, waitForBuffer=False)
 
 
@@ -38,7 +44,7 @@ class ImageGreenscreener(object):
     def AddBackground(self, image: np.array, background: np.array=None):
 
         if background is None:
-            background = self.preloader.Next()
+            background = self.GetRandomImage()
 
         background = self.FitImageSizes(targetSpec=image, image=background)
 
@@ -56,7 +62,7 @@ class ImageGreenscreener(object):
     def AddForeground(self, image: np.array, foreground: np.array=None):
 
         if foreground is None:
-            foreground = self.preloader.Next()
+            foreground = self.GetRandomImage()
 
         foreground = self.FitImageSizes(targetSpec=image, image=foreground)
 
@@ -72,4 +78,13 @@ class ImageGreenscreener(object):
         return res
 
     def Shutdown(self):
-        self.preloader.shutdown()
+        if self.preloader is not None:
+            self.preloader.shutdown()
+
+    def GetRandomImage(self):
+
+        if self.usePreloader:
+            return self.preloader.Next()
+        else:
+            index = random.randint(0, self.fileList.__len__()-1)
+            return self.LoadImage(self.fileList[index])

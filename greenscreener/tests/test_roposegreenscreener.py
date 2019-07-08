@@ -20,12 +20,16 @@ class GreenscreenerTests(TestCase):
         self.result = cv2.cvtColor(self.result, cv2.COLOR_BGR2RGB)
 
         self.greensceener = RoposeGreenscreener(datasetDir)
+        self.greensceenerPreloader = RoposeGreenscreener(datasetDir, usePreloader=True)
 
 
     def test_roposeGreenscreener(self):
         res, additionalYoloData = self.greensceener.AddForeground(image=self.imgNorm)
         self.assertTrue(np.array_equal(res, self.result))
+        res, additionalYoloData = self.greensceenerPreloader.AddForeground(image=self.imgNorm)
+        self.assertTrue(np.array_equal(res, self.result))
 
     def tearDown(self):
         self.greensceener.Shutdown()
+        self.greensceenerPreloader.Shutdown()
 

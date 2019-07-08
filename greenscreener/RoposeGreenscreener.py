@@ -12,7 +12,8 @@ import random
 
 class RoposeGreenscreener(object):
 
-    def __init__(self, datasetDir: str, imageScale: Tuple[int, int] = None, maxPreloadCount = 3000):
+    def __init__(self, datasetDir: str, imageScale: Tuple[int, int] = None, maxPreloadCount = 3000,
+                 usePreloader: bool = False):
         self.backgrounds: List[np.array] = []
         self.originalFileNames: List[str] = []
         self.datasetDir: str = datasetDir
@@ -21,10 +22,13 @@ class RoposeGreenscreener(object):
         print("Loading data for RoposeGreenscreener!")
         self.datasets = datasetLoader.LoadDataSet(datasetDir)
 
-        #self.preloader = DataPreloader(self.datasets, loadMethod=RoposeGreenscreener.LoadDataset,
-        #                               maxPreloadCount=maxPreloadCount, infinite=True, shuffleData=True,
-        #                               waitForBuffer=False)
+        self.usePreloader = usePreloader
 
+        self.preloader = None
+        if self.usePreloader:
+            self.preloader = DataPreloader(self.datasets, loadMethod=RoposeGreenscreener.LoadDataset,
+                                       maxPreloadCount=maxPreloadCount, infinite=True, shuffleData=True,
+                                       waitForBuffer=False)
 
 
     @staticmethod
@@ -44,7 +48,6 @@ class RoposeGreenscreener(object):
 
     def AddForeground(self, image: np.array):
 
-        #foregroundImg, dataset = self.preloader.Next()
         foregroundImg, dataset = self.GetRandomForeGround()
 
         foreground, factor = self.FitImageSizes(targetSpec=image, image=foregroundImg)
@@ -64,9 +67,13 @@ class RoposeGreenscreener(object):
         return res, dataset.yoloData
 
     def GetRandomForeGround(self):
-        index = random.randint(0, self.datasets.__len__()-1)
-        return self.LoadDataset(self.datasets[index])
+
+        if self.usePreloader:
+            return self.preloader.Next()
+        else:
+            index = random.randint(0, self.datasets.__len__()-1)
+            return self.LoadDataset(self.datasets[index])
 
     def Shutdown(self):
-        pass
-        #self.preloader.shutdown()
+        if self.preloader is not None:
+            self.preloader.shutdown()
