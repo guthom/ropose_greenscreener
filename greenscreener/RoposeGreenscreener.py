@@ -42,8 +42,8 @@ class RoposeGreenscreener(object):
     def FitImageSizes(targetSpec: np.array, image: np.array):
         factor = (1.0, 1.0)
         if image.shape != targetSpec.shape:
+            factor = (targetSpec.shape[0]/image.shape[0], targetSpec.shape[1]/image.shape[1])
             image = cv2.resize(image, dsize=(targetSpec.shape[1], targetSpec.shape[0]))
-            factor = (image.shape[0]/targetSpec.shape[0], image.shape[1]/targetSpec.shape[1])
         return image, factor
 
     def AddForeground(self, image: np.array):
@@ -52,8 +52,8 @@ class RoposeGreenscreener(object):
 
         foreground, factor = self.FitImageSizes(targetSpec=image, image=foregroundImg)
 
-        for boundingBox in dataset.yoloData.boundingBoxes:
-            dataset.yoloData.resizedBoundingBoxes.append(boundingBox.ScaleBB(factor[0], factor[1]))
+        for i in range(0, dataset.yoloData.boundingBoxes.__len__()):
+            dataset.yoloData.boundingBoxes[i] = dataset.yoloData.boundingBoxes[i].ScaleBB(factor[1], factor[0])
 
         hsvImage = cv2.cvtColor(foreground, cv2.COLOR_RGB2HSV)
 
