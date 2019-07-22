@@ -6,6 +6,7 @@ import numpy as np
 
 from guthoms_helpers.common_stuff.DataPreloader import DataPreloader
 from ropose_dataset_tools.DataClasses.Dataset.Dataset import Dataset
+from ropose_dataset_tools.DataClasses.Dataset.BoundingBox import BoundingBox
 import ropose_dataset_tools.DataSetLoader as datasetLoader
 import random
 
@@ -46,14 +47,19 @@ class RoposeGreenscreener(object):
             image = cv2.resize(image, dsize=(targetSpec.shape[1], targetSpec.shape[0]))
         return image, factor
 
-    def AddForeground(self, image: np.array):
+    def AddForeground(self, image: np.array, cropToTarget: bool=False):
 
         foregroundImg, dataset = self.GetRandomForeGround()
 
-        foreground, factor = self.FitImageSizes(targetSpec=image, image=foregroundImg)
+        if not cropToTarget:
+            foreground, factor = self.FitImageSizes(targetSpec=image, image=foregroundImg)
 
-        for i in range(0, dataset.yoloData.boundingBoxes.__len__()):
-            dataset.yoloData.boundingBoxes[i] = dataset.yoloData.boundingBoxes[i].ScaleBB(factor[1], factor[0])
+            for i in range(0, dataset.yoloData.boundingBoxes.__len__()):
+                dataset.yoloData.boundingBoxes[i] = dataset.yoloData.boundingBoxes[i].ScaleBB(factor[1], factor[0])
+        else:
+            foregroundImg = dataset.rgbFrame.boundingBox.Crop(foregroundImg)
+            for i in range(0, dataset.yoloData.boundingBoxes.__len__()):
+                dataset.yoloData.boundingBoxes[i] = BoundingBox(0, 0, foregroundImg.shape[0], foregroundImg.shape[1])
 
         hsvImage = cv2.cvtColor(foreground, cv2.COLOR_RGB2HSV)
 
