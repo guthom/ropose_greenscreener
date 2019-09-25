@@ -46,7 +46,7 @@ This work uses parts from:
 
 ## Authors
 
-* **Thomas Gulde** - Main Author
+* **Thomas Gulde**
 
 Cognitive Systems Research Group, Reutlingen-University:
 https://cogsys.reutlingen-university.de/
