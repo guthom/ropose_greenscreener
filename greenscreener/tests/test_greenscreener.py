@@ -5,6 +5,7 @@ from greenscreener.ImageGreenscreener import ImageGreenscreener
 import numpy as np
 import cv2
 import copy
+from guthoms_helpers.input_provider.ImageDirectory import ImageDirectory
 
 class GreenscreenerTests(TestCase):
 
@@ -53,6 +54,29 @@ class GreenscreenerTests(TestCase):
         self.assertTrue(np.array_equal(res, self.resultResized))
         res = self.greensceener.AddForeground(image=copy.copy(self.imgNormResized))
         self.assertTrue(np.array_equal(res, self.resultResized))
+
+
+    def test_creation(self):
+        #return
+        def BGRToRGB(img):
+            return img
+            return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+        #return
+        myDir = "/home/thomas/Desktop/Raws"
+        inputProvider = ImageDirectory(myDir, preprocessingFunction=BGRToRGB)
+
+        counter = 0
+        self.greensceener = ImageGreenscreener("/home/thomas/greenscreener/real/")
+        while not inputProvider.finished():
+            image = inputProvider.GetData()
+            res = self.greensceener.AddBackground(image=image)
+
+            fileName = myDir + "/res/res_" + str(counter) +".png"
+
+            cv2.cvtColor(res, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(fileName, res)
+            counter +=1
 
     def tearDown(self):
         self.greensceener.Shutdown()

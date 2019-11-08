@@ -5,6 +5,7 @@ import greenscreener.config as config
 import numpy as np
 
 from guthoms_helpers.common_stuff.DataPreloader import DataPreloader
+from guthoms_helpers.base_types.Vector2D import Vector2D
 from ropose_dataset_tools.DataClasses.Dataset.Dataset import Dataset
 from ropose_dataset_tools.DataClasses.Dataset.BoundingBox import BoundingBox
 import ropose_dataset_tools.DataSetLoader as datasetLoader
@@ -18,7 +19,7 @@ class RoposeGreenscreener(object):
         self.backgrounds: List[np.array] = []
         self.originalFileNames: List[str] = []
         self.datasetDir: str = datasetDir
-        self.imageScale: str = imageScale
+        self.imageScale: Tuple[int, int] = imageScale
 
         print("Loading data for RoposeGreenscreener!")
         self.datasets = datasetLoader.LoadDataSet(datasetDir)
@@ -52,21 +53,22 @@ class RoposeGreenscreener(object):
         foregroundImg, dataset = self.GetRandomForeGround()
 
         if not cropToTarget:
-            foreground, factor = self.FitImageSizes(targetSpec=image, image=foregroundImg)
+            foregroundImg, factor = self.FitImageSizes(targetSpec=image, image=foregroundImg)
 
             for i in range(0, dataset.yoloData.boundingBoxes.__len__()):
-                dataset.yoloData.boundingBoxes[i] = dataset.yoloData.boundingBoxes[i].ScaleBB(factor[1], factor[0])
+                dataset.yoloData.boundingBoxes[i] = dataset.yoloData.boundingBoxes[i].ScaleBB(Vector2D(factor[1],
+                                                                                                       factor[0]))
         else:
-            foregroundImg = dataset.rgbFrame.boundingBox.Crop(foregroundImg)
+            foregroundImg = dataset.rgbFrame.boundingBox.CropImage(foregroundImg)
             for i in range(0, dataset.yoloData.boundingBoxes.__len__()):
                 dataset.yoloData.boundingBoxes[i] = BoundingBox(0, 0, foregroundImg.shape[0], foregroundImg.shape[1])
 
-        hsvImage = cv2.cvtColor(foreground, cv2.COLOR_RGB2HSV)
+        hsvImage = cv2.cvtColor(foregroundImg, cv2.COLOR_RGB2HSV)
 
         bgMask = cv2.inRange(hsvImage, config.lowerTH, config.upperTH)
         fgMask = cv2.bitwise_not(bgMask)
 
-        foreground = cv2.bitwise_or(foreground, foreground, mask=fgMask)
+        foreground = cv2.bitwise_or(foregroundImg, foregroundImg, mask=fgMask)
         background = cv2.bitwise_or(image, image, mask=bgMask)
 
         res = cv2.bitwise_or(background, foreground)

@@ -1,4 +1,5 @@
 {
     "simulated":true,
-    "greenscreened": true
+    "greenscreened": true,
+    "robotType": "UR10"
 }
