@@ -56,8 +56,9 @@ class RoposeGreenscreener(object):
             foregroundImg, factor = self.FitImageSizes(targetSpec=image, image=foregroundImg)
 
             for i in range(0, dataset.yoloData.boundingBoxes.__len__()):
-                dataset.yoloData.boundingBoxes[i] = dataset.yoloData.boundingBoxes[i].ScaleBB(Vector2D(factor[1],
-                                                                                                       factor[0]))
+                dataset.yoloData.boundingBoxes[i] = dataset.yoloData.boundingBoxes[i].ScaleCoordiantes(
+                    Vector2D(factor[1], factor[0]))
+                dataset.yoloData.boundingBoxes[i] = dataset.yoloData.boundingBoxes[i].ClipToShape(foregroundImg.shape)
         else:
             foregroundImg = dataset.rgbFrame.boundingBox.CropImage(foregroundImg)
             for i in range(0, dataset.yoloData.boundingBoxes.__len__()):
@@ -73,6 +74,7 @@ class RoposeGreenscreener(object):
 
         res = cv2.bitwise_or(background, foreground)
         return res, dataset.yoloData
+
 
     def GetRandomForeGround(self):
 
