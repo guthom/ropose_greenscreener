@@ -1,7 +1,7 @@
 import cv2
 from typing import List, Tuple
 
-import greenscreener.config as config
+import ropose_greenscreener.config as config
 import numpy as np
 
 from guthoms_helpers.common_stuff.DataPreloader import DataPreloader

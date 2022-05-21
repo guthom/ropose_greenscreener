@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 import numpy as np
 from threading import Lock
-import greenscreener.config as config
+import ropose_greenscreener.config as config
 import random
 
 from guthoms_helpers.common_stuff.DataPreloader import DataPreloader
